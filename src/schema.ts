@@ -8,11 +8,14 @@ export const typeDefs = `#graphql
     hello: String
     allposts : [Post]
     post(id : Int) : Post
+    allusers : [User]
+    user(id : Int) : User
   }
   type Mutation {
     createPost( title : String) : Post
     updatePost(id: Int , title : String) : Post
     deletePost(id: Int) : Boolean
+    register(username : String, password : String) : User
   }
 
   type Post {

@@ -1,10 +1,11 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from '@prisma/client'
 import { ApolloServer } from '@apollo/server';
 import { startStandaloneServer } from '@apollo/server/standalone';
 import { HelloResolver } from "./resolvers/Hello"
 import { PostResolver } from "./resolvers/post";
 import { typeDefs } from "./schema";
 import { MyContext } from "./context";
+import { UserResolver } from "./resolvers/UserResolver";
 
 
 const prisma = new PrismaClient();
@@ -13,7 +14,7 @@ const prisma = new PrismaClient();
 async function main() {
     
     const apolloServer = new ApolloServer<MyContext>({
-        resolvers : [HelloResolver , PostResolver],
+        resolvers : [HelloResolver , PostResolver , UserResolver],
         typeDefs, 
     });
 
