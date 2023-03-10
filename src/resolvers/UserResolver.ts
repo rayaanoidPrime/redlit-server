@@ -1,4 +1,5 @@
 import { MyContext } from "src/context";
+import argon2 from "argon2";
 
 type UsernamePasswordInput ={
     username : string,
@@ -20,10 +21,11 @@ export const UserResolver = {
     },
     Mutation : {
         register : async(_parent : any , args : UsernamePasswordInput , {prisma} : MyContext)=>{
+            const hashedPassword = await argon2.hash(args.password);
             const user = await prisma.user.create({
                 data : {
                     username : args.username,
-                    password : args.password
+                    password : hashedPassword
                 }
             })
 
