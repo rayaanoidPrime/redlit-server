@@ -22,5 +22,12 @@ export const typeDefs = `#graphql
     title : String
   }
 
+  type User{
+    id : Int!
+    username : String!
+    createdAt : DateTime!
+    updatedAt : DateTime!
+  }
+
   scalar DateTime
 `;
