@@ -20,9 +20,9 @@ export const PostResolver = {
             return post;
         },
         updatePost : async(_parent : any , args : { id : number , title : string} , {prisma} : MyContext) => {
-            const post = prisma.post.findUnique({
+            const post = await prisma.post.findUnique({
                 where:{
-                    id : args.id
+                    id : args.id || undefined
                 }
             })
 
@@ -30,14 +30,29 @@ export const PostResolver = {
                 return null;
             }
 
+            // try {
+            //     const post_ = await prisma.post.update({
+            //         where : {
+            //             id : args.id || undefined
+            //         },
+            //         data : {
+            //             title : args.title
+            //         }
+            //     })
+            //     return post_;
+            // } catch (error) {
+            //     console.log(error.code)
+            //     return null;
+            // }
+
             return prisma.post.update({
                 where : {
-                    id : args.id 
+                    id : args.id || undefined
                 },
                 data : {
                     title : args.title
                 }
-            })
+            })          
         }
     }
 }
