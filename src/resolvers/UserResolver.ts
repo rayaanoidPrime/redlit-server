@@ -1,9 +1,20 @@
 import { MyContext } from "src/context";
 import argon2 from "argon2";
+import { User } from "@prisma/client";
 
 type UsernamePasswordInput ={
     username : string,
     password : string
+}
+
+type FieldError = {
+    field : string,
+    message : string
+}
+
+type UserResponse = {
+    errors? : FieldError[],
+    user? : User
 }
 
 export const UserResolver = {
@@ -20,7 +31,47 @@ export const UserResolver = {
         }
     },
     Mutation : {
-        register : async(_parent : any , args : UsernamePasswordInput , {prisma} : MyContext)=>{
+        register : async(_parent : any , args : UsernamePasswordInput , {prisma} : MyContext): Promise<UserResponse>=>{
+            
+            if(args.username.length <= 2){
+                return {
+                    errors : [
+                        {
+                            field : "Username",
+                            message : "Length of username must be greater than 2"
+                        },
+                    ]
+                }
+            }
+
+            if(args.password.length <= 3 ){
+                return {
+                    errors : [
+                        {
+                            field : "Password",
+                            message : "Pasword length must be greater than 3"
+                        },
+                    ]
+                }
+            }
+            
+            const exists = await prisma.user.findFirst({
+                where : {
+                    username : args.username
+                }
+            })
+
+            if(exists){
+                return {
+                    errors : [
+                        {
+                            field : "Username",
+                            message : "Username already exists"
+                        }
+                    ]
+                }
+            }
+
             const hashedPassword = await argon2.hash(args.password);
             const user = await prisma.user.create({
                 data : {
@@ -29,7 +80,44 @@ export const UserResolver = {
                 }
             })
 
-            return user;
+            return {
+                user : user
+            };
+        },
+        login : async(_parent : any , args : UsernamePasswordInput , {prisma} : MyContext) : Promise<UserResponse>=>{
+            
+            const user = await prisma.user.findUnique({
+                where:{
+                    username : args.username
+                }
+            })
+
+            if(!user){
+                return {
+                    errors : [
+                        {
+                        field : 'Username',
+                        message : 'User does not exist'
+                        },
+                    ],
+                };
+            }
+
+            const valid = await argon2.verify(user.password , args.password);
+            if(!valid){
+                return {
+                    errors : [
+                        {
+                        field : 'Password',
+                        message : 'Password incorrect'
+                        },
+                    ],
+                };
+            }
+
+            return {
+                user : user,
+            };
         }
     }
 }

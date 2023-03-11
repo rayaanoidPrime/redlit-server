@@ -29,7 +29,10 @@
     "@types/express-serve-static-core": "^4.17.31",
     "apollo-server-express": "^3.11.1",
     "argon2": "^0.30.3",
+    "connect-redis": "^7.0.1",
     "express": "^4.17.3",
-    "graphql": "^16.6.0"
+    "express-session": "^1.17.3",
+    "graphql": "^16.6.0",
+    "redis": "^4.6.5"
   }
 }
