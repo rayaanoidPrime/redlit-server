@@ -58,7 +58,7 @@ async function main() {
     //     origin : 'https://studio.apollographql.com',
     //     credentials : true
     // }
-    apolloServer.applyMiddleware({ app });
+    apolloServer.applyMiddleware({ app  });
  
     app.listen(4000 , ()=>{
         console.log("server started on http://localhost:4000/")

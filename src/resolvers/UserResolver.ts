@@ -29,6 +29,25 @@ export const UserResolver = {
                     id : args.id || undefined
                 }
             })
+        },
+        me : async(_parent: any, _args: any, {prisma , req}: MyContext)=>{
+            
+            console.log(req.session)
+
+            //check for not logged in
+            if(!(req.session as ISession).userId){
+                return null
+            }
+
+            const uid = (req.session as ISession).userId;
+            const user  = await prisma.user.findUnique({
+                where : {
+                    id : uid
+                }
+            })
+
+            return user;
+
         }
     },
     Mutation : {
