@@ -16,6 +16,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/express-session": "^1.17.6",
     "@types/node": "^18.11.9",
     "nodemon": "^2.0.20",
     "prisma": "^4.5.0",
