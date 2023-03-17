@@ -54,11 +54,11 @@ async function main() {
     await apolloServer.start();
     
     //_______________apollo middleware______________
-    // const corsOptions = {
-    //     origin : 'https://studio.apollographql.com',
-    //     credentials : true
-    // }
-    apolloServer.applyMiddleware({ app  });
+    const corsOptions = {
+        origin : ['https://studio.apollographql.com', 'http://localhost:3000'],
+        credentials : true
+    }
+    apolloServer.applyMiddleware({ app , cors : corsOptions });
  
     app.listen(4000 , ()=>{
         console.log("server started on http://localhost:4000/")
