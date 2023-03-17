@@ -8,29 +8,59 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const client_1 = require("@prisma/client");
-const server_1 = require("@apollo/server");
-const standalone_1 = require("@apollo/server/standalone");
+const apollo_server_express_1 = require("apollo-server-express");
 const Hello_1 = require("./resolvers/Hello");
 const post_1 = require("./resolvers/post");
 const schema_1 = require("./schema");
+const UserResolver_1 = require("./resolvers/UserResolver");
+const connect_redis_1 = __importDefault(require("connect-redis"));
+const express_session_1 = __importDefault(require("express-session"));
+const redis_1 = require("redis");
+const express_1 = __importDefault(require("express"));
+const cors_1 = __importDefault(require("cors"));
 const prisma = new client_1.PrismaClient();
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
-        const apolloServer = new server_1.ApolloServer({
-            resolvers: [Hello_1.HelloResolver, post_1.PostResolver],
+        const app = (0, express_1.default)();
+        const redisClient = (0, redis_1.createClient)();
+        redisClient.connect().catch(console.error);
+        const redisStore = new connect_redis_1.default({
+            client: redisClient,
+            disableTouch: true,
+            prefix: "myapp:",
+        });
+        app.use((0, cors_1.default)({
+            origin: 'http://localhost:3000',
+            credentials: true
+        }));
+        app.use((0, express_session_1.default)({
+            name: 'qid',
+            store: redisStore,
+            cookie: {
+                maxAge: 1000 * 60 * 60 * 24 * 365 * 10,
+                httpOnly: true,
+                sameSite: 'lax',
+                secure: false,
+            },
+            resave: false,
+            saveUninitialized: false,
+            secret: "keyboard cat",
+        }));
+        const apolloServer = new apollo_server_express_1.ApolloServer({
+            resolvers: [Hello_1.HelloResolver, post_1.PostResolver, UserResolver_1.UserResolver],
             typeDefs: schema_1.typeDefs,
+            context: ({ req, res }) => ({ prisma: prisma, req, res })
         });
-        const { url } = yield (0, standalone_1.startStandaloneServer)(apolloServer, {
-            context: () => __awaiter(this, void 0, void 0, function* () {
-                return ({
-                    prisma: prisma
-                });
-            }),
-            listen: { port: 4000 },
+        yield apolloServer.start();
+        apolloServer.applyMiddleware({ app, cors: false });
+        app.listen(4000, () => {
+            console.log("server started on http://localhost:4000/");
         });
-        console.log(`🚀  Server ready at: ${url}`);
     });
 }
 main()

@@ -51,13 +51,13 @@ export const UserResolver = {
         }
     },
     Mutation : {
-        register : async(_parent : any , args : UsernamePasswordInput , {prisma} : MyContext): Promise<UserResponse>=>{
+        register : async(_parent : any , args : UsernamePasswordInput , {prisma , req} : MyContext): Promise<UserResponse>=>{
             
             if(args.username.length <= 2){
                 return {
                     errors : [
                         {
-                            field : "Username",
+                            field : "username",
                             message : "Length of username must be greater than 2"
                         },
                     ]
@@ -68,7 +68,7 @@ export const UserResolver = {
                 return {
                     errors : [
                         {
-                            field : "Password",
+                            field : "password",
                             message : "Pasword length must be greater than 3"
                         },
                     ]
@@ -85,7 +85,7 @@ export const UserResolver = {
                 return {
                     errors : [
                         {
-                            field : "Username",
+                            field : "username",
                             message : "Username already exists"
                         }
                     ]
@@ -98,8 +98,10 @@ export const UserResolver = {
                     username : args.username,
                     password : hashedPassword
                 }
-            })
+            });
 
+            (req.session as ISession).userId = user.id;
+            
             return {
                 user : user
             };
@@ -116,7 +118,7 @@ export const UserResolver = {
                 return {
                     errors : [
                         {
-                        field : 'Username',
+                        field : 'username',
                         message : 'User does not exist'
                         },
                     ],
@@ -128,7 +130,7 @@ export const UserResolver = {
                 return {
                     errors : [
                         {
-                        field : 'Password',
+                        field : 'password',
                         message : 'Password incorrect'
                         },
                     ],

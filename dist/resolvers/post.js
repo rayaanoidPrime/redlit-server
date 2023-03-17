@@ -29,22 +29,36 @@ exports.PostResolver = {
             return post;
         }),
         updatePost: (_parent, args, { prisma }) => __awaiter(void 0, void 0, void 0, function* () {
-            const post = prisma.post.findUnique({
-                where: {
-                    id: args.id
-                }
-            });
-            if (!post) {
+            try {
+                const post = yield prisma.post.update({
+                    where: {
+                        id: args.id || undefined
+                    },
+                    data: {
+                        title: args.title
+                    }
+                });
+                return post;
+            }
+            catch (error) {
+                console.log(error.code);
                 return null;
             }
-            return prisma.post.update({
-                where: {
-                    id: args.id
-                },
-                data: {
-                    title: args.title
-                }
-            });
+        }),
+        deletePost: (_parent, args, { prisma }) => __awaiter(void 0, void 0, void 0, function* () {
+            try {
+                const post_ = yield prisma.post.delete({
+                    where: {
+                        id: args.id
+                    },
+                });
+                console.log(post_);
+                return true;
+            }
+            catch (error) {
+                console.log(error);
+                return false;
+            }
         })
     }
 };

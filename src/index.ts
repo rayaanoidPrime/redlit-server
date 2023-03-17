@@ -9,6 +9,8 @@ import RedisStore from "connect-redis"
 import session from "express-session"
 import {createClient} from "redis"
 import express from 'express';
+import cors from 'cors';
+
 
 const prisma = new PrismaClient();
 
@@ -26,9 +28,13 @@ async function main() {
     })
 
     //cookie testing on apollo studio
-    // app.set('trust proxy', process.env.NODE_ENV !== 'production')
+    //app.set('trust proxy', process.env.NODE_ENV !== 'production')
 
-
+    app.use(
+        cors({
+        origin : ['http://localhost:3000' , 'https://studio.apollographql.com'] ,
+        credentials : true
+    }))
     //redis session middleware
     app.use(
         session({
@@ -54,11 +60,11 @@ async function main() {
     await apolloServer.start();
     
     //_______________apollo middleware______________
-    const corsOptions = {
-        origin : ['https://studio.apollographql.com', 'http://localhost:3000'],
-        credentials : true
-    }
-    apolloServer.applyMiddleware({ app , cors : corsOptions });
+    // const corsOptions = {
+    //     origin : ['https://studio.apollographql.com', 'http://localhost:3000'],
+    //     credentials : true
+    // }
+    apolloServer.applyMiddleware({ app , cors : false });
  
     app.listen(4000 , ()=>{
         console.log("server started on http://localhost:4000/")
