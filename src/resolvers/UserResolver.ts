@@ -31,16 +31,15 @@ export const UserResolver = {
             })
         },
         me : async(_parent: any, _args: any, {prisma , req}: MyContext)=>{
-            console.log(req.session)
+            console.log(req)
             //check for not logged in
             if(!req.session.userId ){
                 return null
             }
 
-            const uid = req.session.userId ;
             const user  = await prisma.user.findUnique({
                 where : {
-                    id : uid
+                    id : req.session.userId
                 }
             })
 

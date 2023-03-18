@@ -52,6 +52,7 @@ async function main() {
             name : 'qid',
             store: redisStore,
             cookie : {
+                domain : 'localhost',
                 maxAge : 1000 * 60 * 60 * 24 * 365 * 10, // 10 years
                 httpOnly : true,
                 sameSite : 'lax',
