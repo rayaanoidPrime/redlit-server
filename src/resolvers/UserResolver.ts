@@ -1,7 +1,7 @@
 import { MyContext } from "src/context";
 import argon2 from "argon2";
 import { User } from "@prisma/client";
-import { ISession } from "src/session";
+
 
 type UsernamePasswordInput ={
     username : string,
@@ -31,15 +31,13 @@ export const UserResolver = {
             })
         },
         me : async(_parent: any, _args: any, {prisma , req}: MyContext)=>{
-            
             console.log(req.session)
-
             //check for not logged in
-            if(!(req.session as ISession).userId){
+            if(!req.session.userId ){
                 return null
             }
 
-            const uid = (req.session as ISession).userId;
+            const uid = req.session.userId ;
             const user  = await prisma.user.findUnique({
                 where : {
                     id : uid
@@ -100,7 +98,7 @@ export const UserResolver = {
                 }
             });
 
-            (req.session as ISession).userId = user.id;
+            req.session.userId  = user.id;
             
             return {
                 user : user
@@ -136,7 +134,7 @@ export const UserResolver = {
                     ],
                 };
             }
-            (req.session as ISession).userId = user.id;
+            req.session.userId = user.id;
 
             return {
                 user : user,

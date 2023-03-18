@@ -11,7 +11,11 @@ import {createClient} from "redis"
 import express from 'express';
 import cors from 'cors';
 
-
+declare module "express-session" {
+  interface SessionData {
+    userId: number;
+  }
+}
 const prisma = new PrismaClient();
 
 
@@ -30,10 +34,17 @@ async function main() {
     //cookie testing on apollo studio
     //app.set('trust proxy', process.env.NODE_ENV !== 'production')
 
+    app.use(function(_req, res, next) {
+        res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,UPDATE,OPTIONS');
+        res.header('Access-Control-Allow-Headers', 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept');
+        next();
+      });
+
     app.use(
         cors({
         origin : ['http://localhost:3000' , 'https://studio.apollographql.com'] ,
-        credentials : true
+        methods: ["POST", "PUT", "GET", "OPTIONS", "HEAD"],
+        credentials : true,
     }))
     //redis session middleware
     app.use(
@@ -44,7 +55,7 @@ async function main() {
                 maxAge : 1000 * 60 * 60 * 24 * 365 * 10, // 10 years
                 httpOnly : true,
                 sameSite : 'lax',
-                secure : false, // Cookie only works in https (set to true when in prod) 
+                secure :process.env.NODE_ENV === "production", // Cookie only works in https (set to true when in prod) 
             },
             resave: false, // required: force lightweight session keep alive (touch)
             saveUninitialized: false, // recommended: only save session when data exists
