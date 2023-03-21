@@ -1,6 +1,7 @@
 import { MyContext } from "src/context";
 import argon2 from "argon2";
 import { User } from "@prisma/client";
+import { COOKIE_NAME } from "../constants";
 
 
 type UsernamePasswordInput ={
@@ -31,7 +32,7 @@ export const UserResolver = {
             })
         },
         me : async(_parent: any, _args: any, {prisma , req}: MyContext)=>{
-            console.log(req)
+
             //check for not logged in
             if(!req.session.userId ){
                 return null
@@ -138,6 +139,24 @@ export const UserResolver = {
             return {
                 user : user,
             };
+        },
+
+        logout : async(_parent : any , _args : any ,{req , res} : MyContext) => {
+            console.log("here")
+            return new Promise((resolve ) => {
+                req.session.destroy((error)=>{
+                    res.clearCookie(COOKIE_NAME);
+                    if(error){
+                        console.log(error);
+                        resolve(false);
+                        return;
+                    }
+                    resolve(true);
+                })
+
+                
+            })
+            
         }
     }
 }

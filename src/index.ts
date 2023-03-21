@@ -10,6 +10,7 @@ import session from "express-session"
 import {createClient} from "redis"
 import express from 'express';
 import cors from 'cors';
+import { COOKIE_NAME } from './constants';
 
 declare module "express-session" {
   interface SessionData {
@@ -49,7 +50,7 @@ async function main() {
     //redis session middleware
     app.use(
         session({
-            name : 'qid',
+            name : COOKIE_NAME,
             store: redisStore,
             cookie : {
                 domain : 'localhost',

@@ -18,6 +18,7 @@ export const typeDefs = `#graphql
     deletePost(id: Int) : Boolean
     register(username : String, password : String) : UserResponse
     login(username : String, password : String) : UserResponse
+    logout : Boolean
   }
 
   type Post {
