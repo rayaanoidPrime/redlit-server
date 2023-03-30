@@ -11,6 +11,7 @@ import {createClient} from "redis"
 import express from 'express';
 import cors from 'cors';
 import { COOKIE_NAME } from './constants';
+//import {sendEmail} from "../utils/sendEmail";
 
 declare module "express-session" {
   interface SessionData {
@@ -21,9 +22,8 @@ const prisma = new PrismaClient();
 
 
 async function main() {
-
     const app = express();
-
+ 
     const redisClient = createClient()
     redisClient.connect().catch(console.error)
     const redisStore = new RedisStore({

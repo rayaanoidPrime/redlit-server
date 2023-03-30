@@ -5,6 +5,7 @@ import { COOKIE_NAME } from "../constants";
 
 
 type UsernamePasswordInput ={
+    email : string,
     username : string,
     password : string
 }
@@ -49,8 +50,28 @@ export const UserResolver = {
         }
     },
     Mutation : {
+        // forgotPassoword : async(_parent : any , email : string , {prisma , req} : MyContext): Promise<UserResponse> => {
+        //     const user = await prisma.user.findUnique({
+        //         where : {
+        //             em
+        //         }
+        //     })
+        // },
+
         register : async(_parent : any , args : UsernamePasswordInput , {prisma , req} : MyContext): Promise<UserResponse>=>{
             
+            if(!args.email.includes('@')){
+                return {
+                    errors : [
+                        {
+                            field : "email",
+                            message : "Please enter valid email"
+                        },
+                    ]
+                }
+            }
+
+
             if(args.username.length <= 2){
                 return {
                     errors : [
@@ -93,8 +114,11 @@ export const UserResolver = {
             const hashedPassword = await argon2.hash(args.password);
             const user = await prisma.user.create({
                 data : {
+                    email : args.email,
                     username : args.username,
-                    password : hashedPassword
+                    password : hashedPassword,
+                    createdAt : new Date(),
+                    updatedAt : new Date()
                 }
             });
 
@@ -142,11 +166,10 @@ export const UserResolver = {
         },
 
         logout : async(_parent : any , _args : any ,{req , res} : MyContext) => {
-            console.log("here")
             return new Promise((resolve ) => {
                 req.session.destroy((error)=>{
                     res.clearCookie(COOKIE_NAME);
-                    if(error){
+                    if(error){ 
                         console.log(error);
                         resolve(false);
                         return;
