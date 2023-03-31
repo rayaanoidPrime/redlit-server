@@ -16,8 +16,8 @@ export const typeDefs = `#graphql
     createPost( title : String) : Post
     updatePost(id: Int , title : String) : Post
     deletePost(id: Int) : Boolean
-    register(username : String, password : String) : UserResponse
-    login(username : String, password : String) : UserResponse
+    register( email : String , username : String, password : String) : UserResponse
+    login(usernameOrEmail : String, password : String) : UserResponse
     logout : Boolean
   }
 
@@ -31,6 +31,7 @@ export const typeDefs = `#graphql
   type User{
     id : Int!
     username : String!
+    email : String!
     createdAt : DateTime!
     updatedAt : DateTime!
   }
@@ -45,10 +46,6 @@ export const typeDefs = `#graphql
     user : User
   }
 
-  type UsernamePasswordInput{
-    username : String!,
-    password : String!
-  }
 
   scalar DateTime
 `;

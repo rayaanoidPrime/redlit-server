@@ -2,13 +2,8 @@ import { MyContext } from "src/context";
 import argon2 from "argon2";
 import { User } from "@prisma/client";
 import { COOKIE_NAME } from "../constants";
-
-
-type UsernamePasswordInput ={
-    email : string,
-    username : string,
-    password : string
-}
+import { UsernamePasswordInput } from "./UsernamePasswordInput";
+import { validateRegister } from '../../utils/validatRegister';
 
 type FieldError = {
     field : string,
@@ -60,46 +55,17 @@ export const UserResolver = {
 
         register : async(_parent : any , args : UsernamePasswordInput , {prisma , req} : MyContext): Promise<UserResponse>=>{
             
-            if(!args.email.includes('@')){
-                return {
-                    errors : [
-                        {
-                            field : "email",
-                            message : "Please enter valid email"
-                        },
-                    ]
-                }
+            const errors = validateRegister(args);
+            if (errors){
+                return {errors};
             }
 
-
-            if(args.username.length <= 2){
-                return {
-                    errors : [
-                        {
-                            field : "username",
-                            message : "Length of username must be greater than 2"
-                        },
-                    ]
-                }
-            }
-
-            if(args.password.length <= 3 ){
-                return {
-                    errors : [
-                        {
-                            field : "password",
-                            message : "Pasword length must be greater than 3"
-                        },
-                    ]
-                }
-            }
-            
             const exists = await prisma.user.findFirst({
                 where : {
                     username : args.username
                 }
             })
-
+        
             if(exists){
                 return {
                     errors : [
@@ -128,13 +94,18 @@ export const UserResolver = {
                 user : user
             };
         },
-        login : async(_parent : any , args : UsernamePasswordInput , {prisma , req} : MyContext) : Promise<UserResponse>=>{
+        login : async(_parent : any , usernameOrEmail : string , password : string  , {prisma , req} : MyContext) : Promise<UserResponse>=>{
             
-            const user = await prisma.user.findUnique({
-                where:{
-                    username : args.username
-                }
-            })
+            const user = usernameOrEmail.includes('@') ? 
+                await prisma.user.findUnique({
+                    where : {
+                        email : usernameOrEmail,
+                    }
+                }) : await prisma.user.findUnique({
+                    where : {
+                        username : usernameOrEmail,
+                    }
+                });
 
             if(!user){
                 return {
@@ -147,7 +118,7 @@ export const UserResolver = {
                 };
             }
 
-            const valid = await argon2.verify(user.password , args.password);
+            const valid = await argon2.verify(user.password , password);
             if(!valid){
                 return {
                     errors : [
@@ -164,7 +135,7 @@ export const UserResolver = {
                 user : user,
             };
         },
-
+ 
         logout : async(_parent : any , _args : any ,{req , res} : MyContext) => {
             return new Promise((resolve ) => {
                 req.session.destroy((error)=>{
