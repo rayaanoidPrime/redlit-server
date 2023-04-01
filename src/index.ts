@@ -7,11 +7,11 @@ import { MyContext } from "./context";
 import { UserResolver } from "./resolvers/UserResolver";
 import RedisStore from "connect-redis"
 import session from "express-session"
-import {createClient} from "redis"
+import Redis from "ioredis"
 import express from 'express';
 import cors from 'cors';
 import { COOKIE_NAME } from './constants';
-//import {sendEmail} from "../utils/sendEmail";
+
 
 declare module "express-session" {
   interface SessionData {
@@ -24,10 +24,9 @@ const prisma = new PrismaClient();
 async function main() {
     const app = express();
  
-    const redisClient = createClient()
-    redisClient.connect().catch(console.error)
+    const redis = new Redis();
     const redisStore = new RedisStore({
-        client: redisClient,
+        client: redis,
         disableTouch : true, 
         prefix: "myapp:",
     })
@@ -68,7 +67,7 @@ async function main() {
     const apolloServer = new ApolloServer<MyContext>({
         resolvers : [HelloResolver , PostResolver , UserResolver],
         typeDefs, 
-        context : ({req , res}) => ({prisma : prisma , req , res})
+        context : ({req , res}) => ({prisma : prisma , req , res , redis})
     });
     await apolloServer.start();
     

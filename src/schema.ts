@@ -19,6 +19,8 @@ export const typeDefs = `#graphql
     register( email : String , username : String, password : String) : UserResponse
     login(usernameOrEmail : String, password : String) : UserResponse
     logout : Boolean
+    forgotPassword(email : String) : Boolean
+    changePassword(token : String , newPassword : String) : UserResponse
   }
 
   type Post {

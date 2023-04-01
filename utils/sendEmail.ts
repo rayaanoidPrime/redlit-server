@@ -13,8 +13,8 @@ export async function sendEmail(to: string , html : string) {
     port: 587,
     secure: false, // true for 465, false for other ports
     auth: {
-      user: 'marj4yjhyfn7cdbn@ethereal.email', // generated ethereal user
-      pass: '1cPjchfr8PPzc7GgP3', // generated ethereal password
+      user: 'd4r6m3tfpfixicve@ethereal.email', // generated ethereal user
+      pass: '5bghEC28hdN9fATeBW', // generated ethereal password
     },
   });
 
