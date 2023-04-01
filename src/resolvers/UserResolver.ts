@@ -4,6 +4,7 @@ import { User } from "@prisma/client";
 import { COOKIE_NAME } from "../constants";
 import { UsernamePasswordInput } from "./UsernamePasswordInput";
 import { validateRegister } from '../../utils/validatRegister';
+import { LoginInput } from "./LoginInput";
 
 type FieldError = {
     field : string,
@@ -94,16 +95,16 @@ export const UserResolver = {
                 user : user
             };
         },
-        login : async(_parent : any , usernameOrEmail : string , password : string  , {prisma , req} : MyContext) : Promise<UserResponse>=>{
+        login : async(_parent : any , args : LoginInput , {prisma , req} : MyContext) : Promise<UserResponse>=>{
             
-            const user = usernameOrEmail.includes('@') ? 
+            const user = (args.usernameOrEmail.includes('@')) ? 
                 await prisma.user.findUnique({
                     where : {
-                        email : usernameOrEmail,
+                        email : args.usernameOrEmail,
                     }
                 }) : await prisma.user.findUnique({
                     where : {
-                        username : usernameOrEmail,
+                        username : args.usernameOrEmail,
                     }
                 });
 
@@ -111,14 +112,14 @@ export const UserResolver = {
                 return {
                     errors : [
                         {
-                        field : 'username',
+                        field : 'usernameOrEmail',
                         message : 'User does not exist'
                         },
                     ],
                 };
             }
 
-            const valid = await argon2.verify(user.password , password);
+            const valid = await argon2.verify(user.password , args.password);
             if(!valid){
                 return {
                     errors : [
