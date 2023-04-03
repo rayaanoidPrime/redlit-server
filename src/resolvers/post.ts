@@ -1,5 +1,13 @@
 
+import { Post } from "@prisma/client";
+import { isAuth } from "../middleware/isAuth";
+// import { isAuth } from "src/middleware/isAuth";
 import { MyContext } from "../context";
+
+type PostInput = {
+    title : string,
+    text : string
+}
 
 export const PostResolver = {
     Query : {
@@ -15,8 +23,17 @@ export const PostResolver = {
         }
     },
     Mutation : {
-        createPost : async(_parent : any , args : { title : string} , {prisma} : MyContext) => {
-            const post = await prisma.post.create({ data : { title : args.title } });
+        createPost : async(_parent : any , args : PostInput, context : MyContext ) : Promise<Post> => {
+
+            isAuth( context );
+            const post = await context.prisma.post.create({ 
+                data : { 
+                    title : args.title,
+                    text : args.text,
+                    authorId : context.req.session.userId as any   
+                    //// TODO : MIDDLEWARE in APOLLO ??
+                } , 
+            });
             return post;
         },
         updatePost : async(_parent : any , args : { id : number , title : string} , {prisma} : MyContext) => {

@@ -13,7 +13,7 @@ export const typeDefs = `#graphql
     me : User
   }
   type Mutation {
-    createPost( title : String) : Post
+    createPost( title : String , text : String) : Post
     updatePost(id: Int , title : String) : Post
     deletePost(id: Int) : Boolean
     register( email : String , username : String, password : String) : UserResponse
@@ -28,6 +28,9 @@ export const typeDefs = `#graphql
     createdAt : DateTime!
     updatedAt : DateTime!
     title : String
+    text : String
+    points : Int
+    authorId : Int
   }
 
   type User{
