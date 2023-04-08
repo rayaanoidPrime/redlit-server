@@ -11,8 +11,31 @@ type PostInput = {
 
 export const PostResolver = {
     Query : {
-        allposts : (_parent: any, _args: any, {prisma}: MyContext)=>{
-            return prisma.post.findMany();
+        allposts : async(_parent: any, args: {limit : number , cursor : string | null}, {prisma}: MyContext) : Promise<Post[]>=>{
+            
+            const realLimit = Math.min(50, args.limit);
+            const latest = await prisma.post.findFirst({
+                orderBy : {
+                    createdAt : 'desc'
+                }
+            });
+            // console.log(latest);
+            return prisma.post.findMany({
+                
+                take : realLimit,
+                cursor : {
+                   createdAt : !args.cursor ? latest?.createdAt : args.cursor
+                },
+                where : {
+                    createdAt : {
+                        lte : !args.cursor ? latest?.createdAt : args.cursor
+                    }
+                },
+                orderBy : {
+                    createdAt : 'desc'
+                },
+
+            });
         },
         post : (_parent : any , args : { id : number} , {prisma} : MyContext)=>{
             return prisma.post.findUnique({

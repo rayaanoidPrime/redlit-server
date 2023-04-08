@@ -6,7 +6,7 @@ export const typeDefs = `#graphql
   # clients can execute, along with the return type for each. In this
   type Query {
     hello: String
-    allposts : [Post]
+    allposts(limit : Int , cursor : String ) : [Post]
     post(id : Int) : Post
     allusers : [User]
     user(id : Int) : User
