@@ -12,7 +12,7 @@ type PostInput = {
 export const PostResolver = {
     Query : {
         allposts : async(_parent: any, args: {limit : number , cursor : string | null}, {prisma}: MyContext) : Promise<Post[]>=>{
-            
+
             const realLimit = Math.min(50, args.limit);
             const latest = await prisma.post.findFirst({
                 orderBy : {

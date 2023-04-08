@@ -12,7 +12,6 @@ import express from 'express';
 import cors from 'cors';
 import { COOKIE_NAME } from './constants';
 
-
 declare module "express-session" {
   interface SessionData {
     userId: number;
@@ -86,12 +85,11 @@ async function main() {
     //         prisma : prisma
     //     }),
     //     listen : {port : 4000},
-    //   });
-   
+    //   }); 
     
 }
 
-main()
+main() 
     .then(async () => {
         await prisma.$disconnect();
     })
