@@ -6,7 +6,7 @@ export const typeDefs = `#graphql
   # clients can execute, along with the return type for each. In this
   type Query {
     hello: String
-    allposts(limit : Int , cursor : String ) : [Post]
+    allposts(limit : Int , cursor : String ) : PaginatedPosts
     post(id : Int) : Post
     allusers : [User]
     user(id : Int) : User
@@ -49,6 +49,11 @@ export const typeDefs = `#graphql
   type UserResponse {
     errors : [FieldError],
     user : User
+  }
+
+  type PaginatedPosts{
+    posts : [Post],
+    hasMore : Boolean
   }
 
 

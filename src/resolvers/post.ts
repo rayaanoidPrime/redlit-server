@@ -9,20 +9,26 @@ type PostInput = {
     text : string
 }
 
+type PaginatedPosts = {
+    posts : Post[],
+    hasMore : boolean
+}
+
 export const PostResolver = {
     Query : {
-        allposts : async(_parent: any, args: {limit : number , cursor : string | null}, {prisma}: MyContext) : Promise<Post[]>=>{
+        allposts : async(_parent: any, args: {limit : number , cursor : string | null}, {prisma}: MyContext) : Promise<PaginatedPosts>=>{
 
             const realLimit = Math.min(50, args.limit);
+            const realLimitPlusOne = realLimit + 1; 
             const latest = await prisma.post.findFirst({
                 orderBy : {
                     createdAt : 'desc'
                 }
             });
             // console.log(latest);
-            return prisma.post.findMany({
-                
-                take : realLimit,
+            const posts = await prisma.post.findMany({
+                skip : !args.cursor ? 0 : 1 , 
+                take : realLimitPlusOne,
                 cursor : {
                    createdAt : !args.cursor ? latest?.createdAt : args.cursor
                 },
@@ -36,6 +42,11 @@ export const PostResolver = {
                 },
 
             });
+
+            return {
+                posts : posts.slice(0,realLimit),
+                hasMore : posts.length === realLimitPlusOne
+            }
         },
         post : (_parent : any , args : { id : number} , {prisma} : MyContext)=>{
             return prisma.post.findUnique({
